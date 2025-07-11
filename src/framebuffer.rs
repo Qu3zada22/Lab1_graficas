@@ -45,4 +45,6 @@ impl Framebuffer {
     pub fn get_current_color(&self) -> Color {
         self.current_color
     }
+
+    // Esta función NO la vamos a usar, mejor cargar textura en main.rs para evitar errores de préstamo mutables
 }
