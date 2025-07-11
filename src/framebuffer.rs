@@ -10,7 +10,9 @@ pub struct Framebuffer {
 
 impl Framebuffer {
     pub fn new(width: i32, height: i32, background_color: Color) -> Self {
-        let color_buffer = Image::gen_image_color(width, height, background_color);
+        // Aseguramos que el formato sea compatible para manipulación de píxeles
+        let mut color_buffer = Image::gen_image_color(width, height, background_color);
+        color_buffer.set_format(PixelFormat::PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
         Framebuffer {
             width,
             height,
@@ -21,11 +23,9 @@ impl Framebuffer {
     }
 
     pub fn clear(&mut self) {
+        // Limpia el buffer con el color de fondo
         self.color_buffer = Image::gen_image_color(self.width, self.height, self.background_color);
-    }
-
-    pub fn set_background_color(&mut self, color: Color) {
-        self.background_color = color;
+        self.color_buffer.set_format(PixelFormat::PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
     }
 
     pub fn set_current_color(&mut self, color: Color) {
@@ -37,14 +37,16 @@ impl Framebuffer {
             self.color_buffer.draw_pixel(x, y, self.current_color);
         }
     }
+    
+    /// Dibuja una línea horizontal desde x1 hasta x2 en la coordenada y.
+    pub fn draw_horizontal_line(&mut self, x1: i32, x2: i32, y: i32) {
+        for x in x1..=x2 {
+            self.set_pixel(x, y);
+        }
+    }
 
     pub fn render_to_file(&self, file_path: &str) {
+        // Exporta la imagen. La extensión del archivo determina el formato.
         self.color_buffer.export_image(file_path);
     }
-
-    pub fn get_current_color(&self) -> Color {
-        self.current_color
-    }
-
-    // Esta función NO la vamos a usar, mejor cargar textura en main.rs para evitar errores de préstamo mutables
 }
