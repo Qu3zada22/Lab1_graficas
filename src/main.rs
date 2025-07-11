@@ -4,61 +4,42 @@ mod polygon;
 
 use raylib::prelude::*;
 use framebuffer::Framebuffer;
-use line::line;
-use polygon::draw_polygon;
+use polygon::{fill_polygon, draw_polygon_outline};
 
 fn main() {
     let (screen_width, screen_height) = (800, 600);
 
     let (mut rl, thread) = raylib::init()
         .size(screen_width, screen_height)
-        .title("Rasterizer - Polygons")
+        .title("Rasterizer - Poligono 2")
         .build();
 
+    // El fondo es blanco, que también servirá como el color del borde.
     let mut framebuffer = Framebuffer::new(screen_width, screen_height, Color::WHITE);
     framebuffer.clear();
 
-    // Dibujo de líneas de prueba
-    framebuffer.set_current_color(Color::BLACK);
-    line(&mut framebuffer, Vector2::new(50.0, 50.0), Vector2::new(300.0, 100.0));
-    line(&mut framebuffer, Vector2::new(50.0, 150.0), Vector2::new(300.0, 300.0));
-    line(&mut framebuffer, Vector2::new(300.0, 150.0), Vector2::new(50.0, 300.0));
-    line(&mut framebuffer, Vector2::new(400.0, 400.0), Vector2::new(600.0, 400.0));
-
-    // Polígonos
-    let polygon1 = vec![
-        Vector2::new(100.0, 100.0),
-        Vector2::new(200.0, 80.0),
-        Vector2::new(250.0, 150.0),
-        Vector2::new(200.0, 250.0),
-        Vector2::new(100.0, 200.0),
-    ];
-
+    // --- Polígono 2: Rombo (Azul con orilla blanca) ---
     let polygon2 = vec![
-        Vector2::new(400.0, 100.0),
-        Vector2::new(450.0, 50.0),
-        Vector2::new(500.0, 150.0),
-        Vector2::new(470.0, 250.0),
-        Vector2::new(380.0, 200.0),
+        Vector2::new(321.0, 335.0), Vector2::new(288.0, 286.0),
+        Vector2::new(339.0, 251.0), Vector2::new(374.0, 302.0),
     ];
 
-    framebuffer.set_current_color(Color::RED);
-    draw_polygon(&mut framebuffer, &polygon1);
-    draw_polygon(&mut framebuffer, &polygon2);
+    // 1. Rellenar el polígono de color azul.
+    fill_polygon(&mut framebuffer, &polygon2, Color::BLUE);
 
-    for point in polygon1.iter().chain(polygon2.iter()) {
-        framebuffer.color_buffer.draw_circle(point.x as i32, point.y as i32, 3, Color::RED);
-    }
+    // 2. Dibujar el contorno blanco (opcional, ya que el fondo es blanco).
+    draw_polygon_outline(&mut framebuffer, &polygon2, Color::WHITE);
 
-    // Aquí cargamos la textura dentro de un bloque para controlar vida útil
-    let texture = unsafe { rl.load_texture_from_image(&thread, &framebuffer.color_buffer).unwrap() };
+    // Guardar el resultado en un archivo para la entrega.
+    framebuffer.render_to_file("out.bmp");
 
-    // Dibujar y mantener ventana abierta hasta cerrar
+    // Cargar el framebuffer como una textura para mostrarlo en la ventana.
+    let texture = rl.load_texture_from_image(&thread, &framebuffer.color_buffer).unwrap();
+
+    // Bucle principal para mantener la ventana abierta.
     while !rl.window_should_close() {
         let mut d = rl.begin_drawing(&thread);
-        d.clear_background(Color::WHITE);
+        d.clear_background(Color::BLACK);
         d.draw_texture(&texture, 0, 0, Color::WHITE);
     }
-
-    // Textura se liberará automáticamente cuando salga de scope
 }
