@@ -1,7 +1,7 @@
 use raylib::prelude::*;
 use crate::framebuffer::Framebuffer;
 
-// Algoritmo de Bresenham para dibujar líneas
+/// Algoritmo de Bresenham para dibujar líneas entre dos puntos
 pub fn line(framebuffer: &mut Framebuffer, start: Vector2, end: Vector2) {
     let mut x0 = start.x as i32;
     let mut y0 = start.y as i32;
